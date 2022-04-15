@@ -83,4 +83,3 @@ def getAnalysis(score):
   else: 
     return 'Positive'
   
-  # test gitHub set up
