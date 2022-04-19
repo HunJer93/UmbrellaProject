@@ -25,21 +25,26 @@ def lambda_handler(event, context):
   SQS_LOCAL_HOST_ENDPOINT = 'http://localhost:4566/queue/sentiment-analysis-queue'
   
   # receive sqs queue
-  messages = receive_queue_message(SQS_LOCAL_HOST_ENDPOINT)
+  messages = event['Records']
   
   # create array to hold the incoming sqs messages
   tweet_array_json = []
   
   # cycle the messages and load into array
-  for msg in messages['Messages']:
-    msg_body = msg['body']
-    receipt_handle = msg['ReceiptHandle']
+  for msg in messages:
+    msg_body = json.loads(msg['body'])
     
     # log the message body for testing
     LOGGER.info(f'The message body: {msg_body}')
     
+    raw_message = json.loads(msg_body['Message'])
+    
+    # log the message for testing
+    LOGGER.info(f'The raw message: {raw_message}')
+
+    
     # put the message contents into the array
-    tweet_array_json.append(msg_body) 
+    tweet_array_json.append(raw_message) 
    
   # ######################################################
   # Might need to edit the data from below....
@@ -67,6 +72,8 @@ def lambda_handler(event, context):
   # create a new column for the analysis. This will be done in the database for the project. 
   data_frame['Analysis'] = data_frame['Polarity'].apply(getAnalysis)
   
+  # convert to JSON to output to DynamoDB
+  
   # send the data frame to export to dynamo
   export_to_dynamo(data_frame)
   
@@ -83,17 +90,7 @@ def receive_queue_message(queue_url):
     raise
   else:
     return response
-  
-# delete_queue_message deletes the queue message when the information is extracted
-def delete_queue_message(queue_url,receipt_handle):
-  try:
-    response = SQS.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
-  except ClientError:
-    LOGGER.exception(f'Could not delete the message from - {queue_url}.')
-    raise
-  else:
-    return response
-  
+
 # export_to_dynamo exports the data frame created to a dynamo DB
 def export_to_dynamo(data_frame):
 
@@ -101,7 +98,7 @@ def export_to_dynamo(data_frame):
   for record in data_frame:
     # try to post the record to the database
     try:
-      'POST'(DYNAMO_CLIENT, record)
+      DYNAMO_CLIENT.put_item(record)
     except Exception as e:
       LOGGER.error(e)
     else:
