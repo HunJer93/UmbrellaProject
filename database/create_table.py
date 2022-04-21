@@ -2,7 +2,7 @@ import boto3
 # create database if it doesn't already exist
 def create_sentiment_table(dynamodb=None):
   if not dynamodb:
-    dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
+    dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:4566')
     
   table = dynamodb.create_table(
     TableName='SentimentAnalysis',

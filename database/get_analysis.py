@@ -4,7 +4,7 @@ import boto3
 
 def get_analysis(query_id, query_subject,dynamodb=None):
     if not dynamodb:
-        dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
+        dynamodb = boto3.resource('dynamodb', endpoint_url="http://localhost:4566")
     
     table = dynamodb.Table('SentimentAnalysis')
     

@@ -6,6 +6,7 @@ import json
 import pandas as pd
 import boto3
 import logging
+import decimal
 from botocore.exceptions import ClientError
 
 # global constants
@@ -73,6 +74,10 @@ def lambda_handler(event, context):
   data_frame['Analysis'] = data_frame['Polarity'].apply(getAnalysis)
   
   # convert to JSON to output to DynamoDB
+  data_frame = data_frame.to_json()
+  
+  # do dumb stuff to convert from float to decimal
+  data_frame = json.loads(json.dumps(data_frame), parse_float=decimal.Decimal)
   
   # send the data frame to export to dynamo
   export_to_dynamo(data_frame)

@@ -4,6 +4,11 @@ from moto import mock_dynamodb2
 import boto3
 import pytest
 
+# import database mock
+from database import test_table
+from database import create_table
+from database import put_analysis
+
     
 # when textScrubber is called, people tagged with @ will be removed
 def test_textScrubber_remove_at_mention():
@@ -38,11 +43,12 @@ def test_lambda_handler():
         }]
     }
     
-    # mock dynamoDB client (look up how to test post request)
+    
+    # create mock post success NOT mock table
     
     # compare mock to actual
     
-    context = " "
-    response = 200
-    actual = index.lambda_handler(event, context)['ResponseMetadata']['HTTPStatusCode']
-    assert  actual == response
+    #context = " "
+    #response = 200
+    #actual = index.lambda_handler(event, context)['ResponseMetadata']['HTTPStatusCode']
+    #assert  actual == response
