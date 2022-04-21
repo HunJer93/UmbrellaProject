@@ -1,6 +1,10 @@
 import index
+import unittest
+from moto import mock_dynamodb2
+import boto3
 import pytest
 
+    
 # when textScrubber is called, people tagged with @ will be removed
 def test_textScrubber_remove_at_mention():
     text = '@TestPerson check this out!'
