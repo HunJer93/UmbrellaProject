@@ -43,7 +43,7 @@ def test_lambda_handler():
     
     # compare mock to actual (demoed out in Colab build)
     mock_analysis = {"Tweet":
-        {"0":"NEED a JOB?\nSign up now \nFREE. NO MIDDLEMEN\nJobs AI DataAnalytics MachineLearning Python J\u2026"},
+        {"Text":"NEED a JOB?\nSign up now \nFREE. NO MIDDLEMEN\nJobs AI DataAnalytics MachineLearning Python J\u2026"},
         "Re-Tweet Count":{"0":23},
         "Favorite Count":{"0":0},
         "Subjectivity":{"0":0.8},

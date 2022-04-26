@@ -1,7 +1,10 @@
+from email import message
 import json
 from multiprocessing.connection import Client
+from pyexpat.errors import messages
 import re
-import textblob as TextBlob
+from regex import D
+from textblob import TextBlob
 import json
 import pandas as pd
 import boto3
@@ -25,36 +28,31 @@ def lambda_handler(event, context):
   # local host endpoint url for sqs
   SQS_LOCAL_HOST_ENDPOINT = 'http://localhost:4566/queue/sentiment-analysis-queue'
   
-  # receive sqs queue
-  messages = event['Records']
+  messages = event['Records']['body']['Message']
   
+  
+  #print("printing Record")
+  #print(messages)
+
+    
   # create array to hold the incoming sqs messages
   tweet_array_json = []
   
-  # cycle the messages and load into array
-  for msg in messages:
-    msg_body = json.loads(msg['body'])
-    
-    # log the message body for testing
-    LOGGER.info(f'The message body: {msg_body}')
-    
-    raw_message = json.loads(msg_body['Message'])
-    
+  
+  #for msg in messages:
     # log the message for testing
-    LOGGER.info(f'The raw message: {raw_message}')
-
+  #  LOGGER.info(f'The raw message: {messages}')
     
     # put the message contents into the array
-    tweet_array_json.append(raw_message) 
-   
+  #  tweet_array_json.append(messages)
+  
   # ######################################################
   # Might need to edit the data from below....
   
   # create the data structure for the data_frame
-  d = {'Tweet': [tweet.text for tweet in tweet_array_json], 
-      'Re-Tweet Count': [tweet.retweet_count for tweet in tweet_array_json],
-      'Favorite Count': [tweet.favorite_count for tweet in tweet_array_json],
-      'Place': [tweet.place for tweet in tweet_array_json]
+  d = {'Text': [tweet['text'] for tweet in messages], 
+      'Re-Tweet Count': [tweet['retweet_count']for tweet in messages],
+      'Favorite Count': [tweet['favorite_count'] for tweet in messages]
       }
   
   # create the data frame from the 
@@ -64,20 +62,24 @@ def lambda_handler(event, context):
   data_frame = data_frame.sort_values(['Re-Tweet Count', 'Favorite Count'], ascending= False)
   
   # clean the tweets from the column 'Tweets
-  data_frame['Tweet'] = data_frame['Tweet'].apply(textScrubber)
+  data_frame['Text'] = data_frame['Text'].apply(textScrubber)
 
   # create two columns for subjectivity and polarity
-  data_frame['Subjectivity'] = data_frame['Tweet'].apply(getSubjectivity)
-  data_frame['Polarity'] = data_frame['Tweet'].apply(getPolarity)
+  data_frame['Subjectivity'] = data_frame['Text'].apply(getSubjectivity)
+  data_frame['Polarity'] = data_frame['Text'].apply(getPolarity)
 
   # create a new column for the analysis. This will be done in the database for the project. 
   data_frame['Analysis'] = data_frame['Polarity'].apply(getAnalysis)
   
-  # convert to JSON to output to DynamoDB
-  data_frame = data_frame.to_json()
+  print(type(data_frame))
   
-  # do dumb stuff to convert from float to decimal
-  data_frame = json.loads(json.dumps(data_frame), parse_float=decimal.Decimal)
+  # # convert to JSON to output to DynamoDB
+  # data_frame = data_frame.to_json()
+  
+  # print(type(data_frame))
+  
+  # # do dumb stuff to convert from float to decimal
+  # data_frame = json.loads(json.dumps(data_frame), parse_float=decimal.Decimal)
   
   # send the data frame to export to dynamo
   export_to_dynamo(data_frame)
@@ -100,10 +102,11 @@ def receive_queue_message(queue_url):
 def export_to_dynamo(data_frame):
 
   # for each record within the data frame, load the payload
-  for record in data_frame:
+  for index,record in data_frame.iterrows():
     # try to post the record to the database
     try:
-      DYNAMO_CLIENT.put_item(record)
+      print(type(record))
+      DYNAMO_CLIENT.put_item(Item=record.to_dict(),TableName='SentimentAnalysis')
     except Exception as e:
       LOGGER.error(e)
     else:
