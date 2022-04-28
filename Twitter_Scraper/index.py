@@ -53,7 +53,7 @@ def lambda_handler(event, context):
 # creates connection with twitter API using keys 
 def establish_twitter_connection():
   # get the data from the CSV to allow access to Twitter's API
-  log = pd.read_csv('Twitter API Keys.csv') # read the csv using pandas
+  log = pd.read_csv('TwitterAPIKeys.csv') # read the csv using pandas
   accessToken = log['Access Token'][0]
   accessSecret = log['Access Secret'][0] 
   consumerKey = log['API Key'][0]

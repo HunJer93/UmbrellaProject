@@ -11,16 +11,19 @@ import boto3
 import logging
 import decimal
 from botocore.exceptions import ClientError
+from collections import defaultdict
 
 # global constants
 
-# sqs client
-SQS = boto3.client('sqs')
+# sqs client (endpoint over ride for local host)
+SQS = boto3.client('sqs', endpoint_url='http://localhost:4566')
 # logger (and configuration)
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
 
-DYNAMO_CLIENT = boto3.client('dynamodb')
+# dynamo client (endpoint over ride for local host)
+DYNAMO_CLIENT = boto3.client('dynamodb', endpoint_url='http://localhost:4566')
+
 
 # handle the import json from SQS
 def lambda_handler(event, context):
@@ -28,27 +31,9 @@ def lambda_handler(event, context):
   # local host endpoint url for sqs
   SQS_LOCAL_HOST_ENDPOINT = 'http://localhost:4566/queue/sentiment-analysis-queue'
   
+  # unpackage message payload
   messages = event['Records']['body']['Message']
-  
-  
-  #print("printing Record")
-  #print(messages)
-
     
-  # create array to hold the incoming sqs messages
-  tweet_array_json = []
-  
-  
-  #for msg in messages:
-    # log the message for testing
-  #  LOGGER.info(f'The raw message: {messages}')
-    
-    # put the message contents into the array
-  #  tweet_array_json.append(messages)
-  
-  # ######################################################
-  # Might need to edit the data from below....
-  
   # create the data structure for the data_frame
   d = {'Text': [tweet['text'] for tweet in messages], 
       'Re-Tweet Count': [tweet['retweet_count']for tweet in messages],
@@ -71,16 +56,6 @@ def lambda_handler(event, context):
   # create a new column for the analysis. This will be done in the database for the project. 
   data_frame['Analysis'] = data_frame['Polarity'].apply(getAnalysis)
   
-  print(type(data_frame))
-  
-  # # convert to JSON to output to DynamoDB
-  # data_frame = data_frame.to_json()
-  
-  # print(type(data_frame))
-  
-  # # do dumb stuff to convert from float to decimal
-  # data_frame = json.loads(json.dumps(data_frame), parse_float=decimal.Decimal)
-  
   # send the data frame to export to dynamo
   export_to_dynamo(data_frame)
   
@@ -101,12 +76,23 @@ def receive_queue_message(queue_url):
 # export_to_dynamo exports the data frame created to a dynamo DB
 def export_to_dynamo(data_frame):
 
+  data_frame_keys = ['Text', 'Re-Tweet Count', 'Favorite Count', 'Subjectivity', 'Polarity', 'Analysis']
+  
+  payload = {}
   # for each record within the data frame, load the payload
-  for index,record in data_frame.iterrows():
-    # try to post the record to the database
+  # amazon needs the payload in a dictionary form with each data type having a key of S for string or N for number
+  # each value must also be converted to a string
+  for record in data_frame.itertuples(index=False, name=None):
+    payload['Text']={'S': record[0]}
+    payload['Re-Tweet Count']={'N': str(record[1])}
+    payload['Favorite Count']={'N': str(record[2])}
+    payload['Subjectivity']={'N': str(record[3])}
+    payload['Polarity']={'N': str(record[4])}
+    payload['Analysis']={'S': str(record[5])}
+    
     try:
-      print(type(record))
-      DYNAMO_CLIENT.put_item(Item=record.to_dict(),TableName='SentimentAnalysis')
+
+      DYNAMO_CLIENT.put_item(Item=payload,TableName='SentimentAnalysis')
     except Exception as e:
       LOGGER.error(e)
     else:
@@ -119,6 +105,7 @@ def textScrubber(text):
   text = re.sub(r'#', '', text) #removing the '#' from the tweet
   text = re.sub(r'RT[\s]+', '', text) #removes any retweets 
   text = re.sub(r'https?:\/\/\S+', '', text) # remove any hyper link. \ escapes the / used in the hyper link, and S+ is looking for any white space after the //.
+  text = re.sub(r'\n', ' ', text) # removes next lines
   
   # clean up the white space
   text = text.strip()
@@ -142,6 +129,11 @@ def getAnalysis(score):
     return 'Neutral'
   else: 
     return 'Positive'
+  
+def Convert(tup, di):
+  for a, b in tup:
+    di.setdefault(a,[]).append(b)
+  return di
   
 
   
