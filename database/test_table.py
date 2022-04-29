@@ -5,9 +5,7 @@ import json
 import boto3 # AWS SDK for Python
 from botocore.exceptions import ClientError
 from moto import mock_dynamodb2
-from database.get_analysis import get_analysis
 
-from database.put_analysis import put_sentiment_analysis # since we're going to mock DynamoDB service
 
 @mock_dynamodb2
 class TestDatabaseFunctions(unittest.TestCase):
