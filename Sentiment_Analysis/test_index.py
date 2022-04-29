@@ -31,6 +31,7 @@ def test_textScrubber_remove_hyperlink():
     assert index.textScrubber(text) == 'check this out! thisisneat wow'
     
 # when a payload is sent to the lambda_handler, it processes the payload (single tweet test)
+# only works when localstack is running
 def test_lambda_handler():
     # dummy event
     event = {

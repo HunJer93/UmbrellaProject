@@ -76,8 +76,6 @@ def receive_queue_message(queue_url):
 # export_to_dynamo exports the data frame created to a dynamo DB
 def export_to_dynamo(data_frame):
 
-  data_frame_keys = ['Text', 'Re-Tweet Count', 'Favorite Count', 'Subjectivity', 'Polarity', 'Analysis']
-  
   payload = {}
   # for each record within the data frame, load the payload
   # amazon needs the payload in a dictionary form with each data type having a key of S for string or N for number

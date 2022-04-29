@@ -4,7 +4,10 @@ import unittest
 import json
 import boto3 # AWS SDK for Python
 from botocore.exceptions import ClientError
-from moto import mock_dynamodb2 # since we're going to mock DynamoDB service
+from moto import mock_dynamodb2
+from database.get_analysis import get_analysis
+
+from database.put_analysis import put_sentiment_analysis # since we're going to mock DynamoDB service
 
 @mock_dynamodb2
 class TestDatabaseFunctions(unittest.TestCase):
@@ -43,6 +46,23 @@ class TestDatabaseFunctions(unittest.TestCase):
         result = put_sentiment_analysis(123456, "Twitter", payload, self.dynamodb)
         
         self.assertEqual(200, result['ResponseMetadata']['HTTPStatusCode'])
+        
+    # test table with a given payload  
+    # keep for now but look into testing actual payload  
+    # def test_put_with_payload(self, payload):
+    #     # get the put result
+    #     put_result = put_sentiment_analysis(123456, "TestName", payload, self.dynamodb)
+        
+    #     return self.assertEqual(200, put_result['ResponseMetadata']['HTTPStatusCode'])
+    
+    # def test_get_with_payload(self, payload):
+        
+    #     put_sentiment_analysis(123456, "TestName", payload, self.dynamodb)
+    #     get_result = get_analysis(123456, "TestName", self.dynamodb)
+        
+    #     return self.assertEqual(get_result, payload)
+        
+        
         
     # test if the get request works successfully
     def test_get_analysis(self):
