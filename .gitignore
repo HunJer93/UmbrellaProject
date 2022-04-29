@@ -1,3 +1,5 @@
-**/pycache
+/__pycache__
 **/.pytest_cache
 /Twitter_Scraper/TwitterAPIKeys.csv
+/Twitter_Scraper/__pycache__
+/Sentiment_Analysis/__pycache__
