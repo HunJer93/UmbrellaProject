@@ -17,10 +17,13 @@ import pandas as pd
 import tweepy
 import boto3
 
+# constants
+SQS_LOCAL_HOST_ENDPOINT = "http://localhost:4566"
 
 # handle the import json from SQS
 def lambda_handler(event, context):
-    
+  
+  # process the columns from the API JSON payload and assign to local variables  
   message_body = event['body']
   message = message_body['Message']
   query = message['Query']
@@ -31,13 +34,8 @@ def lambda_handler(event, context):
   scraper_message = json.dumps(create_api_query(clean_query(query), establish_twitter_connection(), num_tweets))
   
   # ship out with Boto3 
-  # get the sqs service resource (hard coded to localhost:4566)
-  sqs = boto3.client('sqs', endpoint_url='http://localhost:4566')
-  
-  
-  # print for testing
-  #print(response.get('MessageId'))
-  #print(response.get('MD5OfMessageBody'))
+  # get the sqs service resource
+  sqs = boto3.client('sqs', endpoint_url=SQS_LOCAL_HOST_ENDPOINT)
   
   # try to create message payload and send payload
   try:
@@ -52,13 +50,10 @@ def lambda_handler(event, context):
   return response
 
     
-
-
- 
 # creates connection with twitter API using keys 
 def establish_twitter_connection():
   # get the data from the CSV to allow access to Twitter's API
-  log = pd.read_csv('Twitter API Keys.csv') # read the csv using pandas
+  log = pd.read_csv('TwitterAPIKeys.csv') # read the csv using pandas
   accessToken = log['Access Token'][0]
   accessSecret = log['Access Secret'][0] 
   consumerKey = log['API Key'][0]
