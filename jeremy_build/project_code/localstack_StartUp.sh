@@ -8,6 +8,8 @@ aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name twitter-s
 # set up SQS for sentiment analysis lambda
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name sentiment-analysis-queue
 
+# run create_table.py
+python3 create_table.py
 
 # create TwitterScraper Lambda Function
 aws --endpoint-url=http://localhost:4566 \

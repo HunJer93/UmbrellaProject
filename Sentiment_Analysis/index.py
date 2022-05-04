@@ -128,10 +128,5 @@ def getAnalysis(score):
   else: 
     return 'Positive'
   
-def Convert(tup, di):
-  for a, b in tup:
-    di.setdefault(a,[]).append(b)
-  return di
-  
 
   

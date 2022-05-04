@@ -1,0 +1,36 @@
+{
+    "resource": "/",
+    "path": "/",
+    "httpMethod": "GET",
+    "requestContext": {
+        "resourcePath": "/",
+        "httpMethod": "GET",
+        "path": "/Prod/"
+    },
+    "headers": {
+        "accept": "text/html",
+        "accept-encoding": "gzip, deflate, br",
+        "Host": "xxx.us-east-2.amazonaws.com",
+        "User-Agent": "Mozilla/5.0"
+    },
+    "multiValueHeaders": {
+        "accept": [
+            "text/html"
+        ],
+        "accept-encoding": [
+            "gzip, deflate, br"
+        ]
+    },
+    "queryStringParameters": {
+        "postcode": 12345
+        },
+    "multiValueQueryStringParameters": "NULL",
+    "pathParameters": "NULL",
+    "stageVariables": "NULL",
+    "body": {
+        "Message": {
+        "Query": "Michael Bolton, Lonely Island",
+        "Num_Tweets" : 10
+    }},
+    "isBase64Encoded": "False"
+    }
