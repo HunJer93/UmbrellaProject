@@ -3,13 +3,23 @@ echo "Configuring localstack components... Please hold."
 set -x
 #creation of resources using cloud templates
 # set up SQS for scraper lambda
-aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name twitter-scraper-queue
+aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name test-queue
 
 # set up SQS for sentiment analysis lambda
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name sentiment-analysis-queue
 
+# display queues
+aws --endpoint-url=http://localhost:4566 sqs list-queues
+
 # run create_table.py
 python3 create_table.py
+
+# create Test Lambda Function
+aws --endpoint-url=http://localhost:4566 \
+lambda create-function --function-name test-lambda \
+--zip-file fileb://test-lambda.zip \
+--handler index.lambda_handler --runtime python3.8 \
+--role arn:aws:iam::000000000000:role/lambda-role 
 
 # create TwitterScraper Lambda Function
 aws --endpoint-url=http://localhost:4566 \
@@ -33,6 +43,9 @@ aws --endpoint-url=http://localhost:4566 lambda create-event-source-mapping --fu
 
 # manually send a message to the twitter-scraper-queue
 aws --endpoint-url=http://localhost:4566 sqs send-message --queue-url  http://localhost:4566/000000000000/twitter-scraper-queue --message-body 'this is a message test for scraper'
+
+# manually send a payload to the twitter-scraper-queue
+aws --endpoint-url=http://localhost:4566 sqs send-message --queue-url  http://localhost:4566/000000000000/twitter-scraper-queue --message-body '{"Query": "Michael Bolton, Lonely Island","Num_Tweets" : 10}'
 
 
 

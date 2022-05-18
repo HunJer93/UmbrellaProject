@@ -11,23 +11,22 @@
 # data will be scrubbed using re regular expressions library
 import json
 import logging
-from aiohttp import ClientError
-from matplotlib.font_manager import json_dump
 import pandas as pd
 import tweepy
 import boto3
+from botocore.exceptions import ClientError
 
 # constants
-SQS_LOCAL_HOST_ENDPOINT = "http://localhost:4566"
+SQS_LOCAL_HOST_ENDPOINT = "http://localhost:4566/000000000000/sentiment-analysis-queue"
 
 # handle the import json from SQS
 def lambda_handler(event, context):
   
   # process the columns from the API JSON payload and assign to local variables  
-  message_body = event['body']
-  message = message_body['Message']
-  query = message['Query']
-  num_tweets = message['Num_Tweets']
+  # message_body = event['body']
+  # message = message_body['Message']
+  query = event['Query']
+  num_tweets = event['Num_Tweets']
   
   # get the query from the sqs_json, establish the api connection, and get the number of tweets needed from the sqs_json. pass all of this to the create_api_query 
   # to get the dataframe
@@ -41,7 +40,7 @@ def lambda_handler(event, context):
   try:
     # create a new message with the scraper_message as the contents, and send it out to sqs
     response = sqs.send_message(
-      QueueUrl='http://localhost:4566/queue/sentiment-analysis-queue',
+      QueueUrl="http://localhost:4566/000000000000/sentiment-analysis-queue",
       MessageBody=scraper_message)
   except ClientError as e:
     logging.error(e)

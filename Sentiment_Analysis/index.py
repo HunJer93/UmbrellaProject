@@ -16,7 +16,7 @@ from collections import defaultdict
 # global constants
 
 # sqs client (endpoint over ride for local host)
-SQS = boto3.client('sqs', endpoint_url='http://localhost:4566')
+SQS = boto3.client('sqs', endpoint_url='http://localhost:4566/000000000000/sentiment-analysis-queue')
 # logger (and configuration)
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
@@ -29,7 +29,7 @@ DYNAMO_CLIENT = boto3.client('dynamodb', endpoint_url='http://localhost:4566')
 def lambda_handler(event, context):
   
   # local host endpoint url for sqs
-  SQS_LOCAL_HOST_ENDPOINT = 'http://localhost:4566/queue/sentiment-analysis-queue'
+  SQS_LOCAL_HOST_ENDPOINT = "http://localhost:4566/000000000000/sentiment-analysis-queue"
   
   # unpackage message payload
   messages = event['Records']['body']['Message']
@@ -59,7 +59,6 @@ def lambda_handler(event, context):
   # send the data frame to export to dynamo
   export_to_dynamo(data_frame)
   
-  return 0
 
   
 # receive_queue_message retrieves messages from the SQS queue

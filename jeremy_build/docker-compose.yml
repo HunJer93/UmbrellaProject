@@ -1,34 +1,20 @@
 version: "3.7"
+
 services:
   localstack:
     container_name: "Jeremy_Umbrella_Project"
     image: localstack/localstack
-    hostname: localstack
-    networks:
-      - localstack-net
+    network_mode: bridge
     ports:
-      - "4566-4599:4566-4599"
-      - "53:53"
-      - "53:53/udp"
-      - "4510-4559:4510-4559"
-      - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
+      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
+      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
     environment:
-      - SERVICES=s3,sqs,lambda,cloudformation,sts,iam,cloudwatch,apigateway,events,dynamodb
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
-      - PORT_WEB_UI=8080
-      - LAMBDA_EXECUTOR=docker-reuse
-      - LAMBDA_REMOTE_DOCKER=false
-      - LAMBDA_REMOVE_CONTAINERS=true
-      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DEBUG=${DEBUG-}
+      - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # only required for Pro
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - HOST_TMP_FOLDER=${TMPDIR}
     volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ./bin:/docker-entrypoint-initaws.d
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-networks:
-  localstack-net:
-    external: false
-    driver: bridge
-    name: localstack-net
