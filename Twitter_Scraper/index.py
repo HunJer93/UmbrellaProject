@@ -23,10 +23,10 @@ SQS_LOCAL_HOST_ENDPOINT = "http://localhost:4566/000000000000/sentiment-analysis
 def lambda_handler(event, context):
   
   # process the columns from the API JSON payload and assign to local variables  
-  # message_body = event['body']
-  # message = message_body['Message']
-  query = event['Query']
-  num_tweets = event['Num_Tweets']
+  message_body = event['body']
+  message = message_body['Message']
+  query = message['Query']
+  num_tweets = message['Num_Tweets']
   
   # get the query from the sqs_json, establish the api connection, and get the number of tweets needed from the sqs_json. pass all of this to the create_api_query 
   # to get the dataframe
