@@ -1,3 +1,22 @@
+* {
+  text-align: center;
+}
+
+.logo {
+  margin: auto
+}
+
+.jumbotron {
+  margin: 100px auto;
+  max-width: 50%;
+  text-align: center;
+}
+
+.card {
+  width: 18rem;
+  margin: 100px auto;
+}
+
 .App {
   text-align: center;
 }
