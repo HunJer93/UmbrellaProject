@@ -23,7 +23,7 @@ function TestHomePage() {
         <hr className="my-4" />
         <h2 className='display-5'>Create Your Query Here</h2>
         <p className='lead'>
-            Enter your query here. Please keet your query under 500 words or else it can't be processed!
+            Enter your query here. Please keep your query under 500 words or else it can't be processed!
             {/* Twitter Query search bar here */}
 
             Please enter a number of Tweets up to 5000
