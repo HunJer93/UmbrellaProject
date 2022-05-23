@@ -8,6 +8,7 @@ function TestHomePage() {
     const [query, setQuery] = useState('')
     const [numTweets, setNumTweets] = useState('')
 
+
     const handleQueryChange = event => {
       setQuery(event.target.value)
     }
@@ -18,6 +19,23 @@ function TestHomePage() {
 
     const handleSubmit = event =>{
       event.preventDefault();
+
+      //need to change the url
+      const url = 'localhost:3000/filler'
+      const payload = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({ query, numTweets })
+      };
+
+      fetch(url, payload)
+        .then(Response = console.log('Submitted successfully'))
+        .catch(error => console.log('Form submit error', error))
+
+      //used to navigate pages
+      navigate('/graphPage')
+    
+      //handle the payload
       alert(`Your state values: \n
               query: ${query} \n
               numTweets: ${numTweets}`)
@@ -54,7 +72,7 @@ function TestHomePage() {
                 />
                 <br />
                 <br />
-                <button className='btn btn-success' onClick={() => navigate('/graphPage')}
+                <button className='btn btn-success font-weight-bold' onClick={() => handleSubmit()}
                         >Start Search
                 </button>
             </p>
@@ -69,7 +87,7 @@ function TestHomePage() {
             </button>
           </h5>
         </div>
-        <div id="collapseOne" className="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+        <div id="collapseOne" className="collapse" aria-labelledby="headingOne" data-parent="#accordion">
           <div className="card-body">
             <p className="lead">
                 Welcome to Poll the Room! Please enter the Twitter query you would like sentiment analysis on. 
