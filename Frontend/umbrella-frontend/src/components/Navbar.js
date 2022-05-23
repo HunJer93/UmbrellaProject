@@ -13,7 +13,7 @@ function Navbar() {
                     alt=""
                 />
             </nav>
-            <h1 className="display-5">Poll the Room</h1>
+            <h1 className="display-4 font-weight-bold">Poll the Room</h1>
         </div>
     );
 }
